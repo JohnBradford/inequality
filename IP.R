@@ -1,7 +1,7 @@
 #Inequality Process: 
 #One Parameter Inequality Process (OPIP), and 
 #Inequality Process with Distributed Omega (IPDO)
-
+set.seed(1)
 IP = function (N=1000, time=500, omegas=c(0), pFreq=c(N), 
                record=c(100, 200, 300, 400, 500), longForm=TRUE){
   library(dplyr)
