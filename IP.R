@@ -1,29 +1,36 @@
 #Inequality Process: 
 #One Parameter Inequality Process (OPIP), and 
 #Inequality Process with Distributed Omega (IPDO)
-library(dplyr)
-library(tidyr)
-set.seed(1)
-IP = function (N=1000, time=500, omegas=c(0), pFreq=c(N), 
-               record=c(100, 200, 300, 400, 500), longForm=TRUE){
-
-  #set.seed(1)
+#set.seed(1)
+IP = function (N=10000,  omegas=c(.05), pFreq=rep(N/length(omegas), length(omegas)), 
+               record=c(500), time=max(record), longForm=TRUE, condense=TRUE, setSeed=FALSE, 
+               wealthVarName=NULL, groupNames=NULL){
+  library(lazyeval)
+  library(dplyr)
+  library(tidyr)
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+  if(setSeed==TRUE){set.seed(1)}
   id <- 1:N
   df <- data.frame(id=id)
-  cL <- length(omegas)
-  #Adjust to ensure that total pop. is N, and an even number
-  if(N %% 2 != 0){
-    print("N must be set to an even number!\nSetting N to N+1")
-    N <- N+1}
-  if(sum(pFreq) < N){
-    nd <- N-sum(pFreq)
-    ndg <- sample(1:cL, 1) #setting index
-    pFreq[ndg] <- pFreq[ndg] + nd
+  if (length(omegas)<length(pFreq)){
+    omegas <- rep(omegas[1], length(pFreq))
   }
-  if(sum(pFreq) > N){
-    nd <- sum(pFreq) - N
+  cL <- length(omegas)
+  pFreq <- round(pFreq/(sum(pFreq)/N)) ##this ensures the frequencies for each class sum to N
+  #Adjust to ensure that total pop. is N, and an even number
+  
+  if(N %% 2 != 0){
+    message("N must be set to an even number!\nSetting N to N+1")
+    N <- N+1}
+  while(sum(pFreq) < N) {
+    #nd <- N-sum(pFreq)
     ndg <- sample(1:cL, 1) #setting index
-    pFreq[ndg] <- pFreq[ndg] - nd
+    pFreq[ndg] <- pFreq[ndg] + 1
+  }
+  while(sum(pFreq) > N) {
+    #nd <- sum(pFreq) - N
+    ndg <- sample(1:cL, 1) #setting index
+    pFreq[ndg] <- pFreq[ndg] - 1
   }
   
   #Adding omegas column, group factor column
@@ -31,17 +38,23 @@ IP = function (N=1000, time=500, omegas=c(0), pFreq=c(N),
   df$omega <- oms
   ol <- length(omegas)
   groups <- as.numeric()
-  for(i in 1:ol){
-    groups[i] <- paste("group", i, sep="")
+  gr <- groupNames[1] %||% "group"
+  if(length(groupNames)==ol){
+    group <- rep(groupNames, pFreq)
+  } else {
+    for(i in 1:ol){
+      groups[i] <- paste(gr, i, sep="")
+    }
+    group <- rep(groups, pFreq)
   }
-  group <- rep(groups, pFreq)
+
   df$group <- group
   wealth <- rep(1, N)   #THIS IS A COUNTER, THAT IS CONTINUOUSLY REPLACED/UPDATED.  wealth = wealth at t-1.
 
   #Add additional columns for recording wealths at time t
-  w <- data.frame(x=rep(NA,N))
   cs <- length(record)
-  w <- w[,rep.int(1,cs)]
+  w <- data.frame(x=rep(NA,N))
+  if(cs>1){w <- w[,rep.int(1,cs)]}
   names(w) <- record
   df <- dplyr::bind_cols(df, w)
   
@@ -88,15 +101,32 @@ IP = function (N=1000, time=500, omegas=c(0), pFreq=c(N),
     
     
     }
-    
-    #print(work)
-    
+
     #update old wealths
     wealth[work$idi] <- work$newi
     wealth[work$idj] <- work$newj
   }
   #Place in long-form
   if(longForm==TRUE){
-  df <- tidyr::gather(df, step, wealth, indexes )}
+    if(!is.null(wealthVarName)) {
+      df <- tidyr::gather_(df, "step", wealthVarName, as.character(record))
+  } else {
+    df <- tidyr::gather(df, step, wealth, indexes )
+  }
+
+  if(condense==TRUE){ ##condense only makes sense if longForm is set to TRUE
+    if(!is.null(wealthVarName)) {
+      wealthV <- as.name(wealthVarName)
+      dots <- list(~first(omega), ~first(group), ~mean(wealthV, na.rm=T))
+      df <- df %>% group_by(id) %>%  
+        summarise_(.dots = setNames(dots, c("omega", "group", wealthVarName)))
+      
+    } else {
+      df <- df %>% group_by(id) %>% 
+        summarise(omega=first(omega), group=first(group),
+                  wealth=mean(wealth, na.rm=T))
+    }
+  }
+  }
   return (df) 
 }
