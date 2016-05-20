@@ -1,27 +1,28 @@
 #Inequality Process: 
 #One Parameter Inequality Process (OPIP), and 
 #Inequality Process with Distributed Omega (IPDO)
+library(dplyr)
+library(tidyr)
 set.seed(1)
 IP = function (N=1000, time=500, omegas=c(0), pFreq=c(N), 
                record=c(100, 200, 300, 400, 500), longForm=TRUE){
-  library(dplyr)
-  library(tidyr)
-  set.seed(1)
+
+  #set.seed(1)
   id <- 1:N
   df <- data.frame(id=id)
-
+  cL <- length(omegas)
   #Adjust to ensure that total pop. is N, and an even number
   if(N %% 2 != 0){
     print("N must be set to an even number!\nSetting N to N+1")
     N <- N+1}
   if(sum(pFreq) < N){
     nd <- N-sum(pFreq)
-    ndg <- sample(1:6, 1)
+    ndg <- sample(1:cL, 1) #setting index
     pFreq[ndg] <- pFreq[ndg] + nd
   }
   if(sum(pFreq) > N){
     nd <- sum(pFreq) - N
-    ndg <- sample(1:6, 1)
+    ndg <- sample(1:cL, 1) #setting index
     pFreq[ndg] <- pFreq[ndg] - nd
   }
   
@@ -84,6 +85,8 @@ IP = function (N=1000, time=500, omegas=c(0), pFreq=c(N),
       
     df[work$idi, index] <- work$newi
     df[work$idj, index]  <- work$newj
+    
+    
     }
     
     #print(work)
