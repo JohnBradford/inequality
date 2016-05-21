@@ -12,6 +12,7 @@ library(GenSA)
 source(file="IP.R")
 source(file="cpsLoad.R")
 source("dataFit.R")
+source("sim_anneal.R")
 ##Possible X's (conditioning variables):
 ##x=c("educ6", "educ4", "sex", "race", "race2", "hispan"),
 ##y=c("wage5", "wage10"),
@@ -53,9 +54,9 @@ fit.data(values=s_n, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
 numCalls <<- 0
 test <- GenSA(par=rep(0.5, 6), fn=fit.data, 
               lower=rep(.001, 6), upper=rep(.999,6), 
-              control=list(temperature=c(1, 0.5, 0.5, 0.5, 0.5), 
+              control=list(temperature=.5, 
                            threshold.stop=.005,
-                           max.call=5, 
+                           max.call=100, 
                            trace.mat=TRUE,
                            #maxit=20,
                            verbose=TRUE), 
@@ -63,14 +64,31 @@ test <- GenSA(par=rep(0.5, 6), fn=fit.data,
               df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), yr=1986)
 
 
+niter <- 100
+numCalls <<- 0
+gr_optim_fun <- function(){
+  pars<-rep(0.5, 6)
+  optim_permanentTemp <<- rep(c(1,rep(0.5, niter-1)), niter)
+  Lp <- length(pars)
+  plus_minus <- sample(c(-1,1), Lp, replace=T)
+  rvec <- runif(Lp, min=0, max=pars)*plus_minus*optim_permanentTemp[numCalls]
+  return(pars+rvec)
+}
 
-
-test2 <- optim(par=rep(0.5, 6), fn=fit.data, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+test2 <- optim(par=rep(0.5, 6), fn=fit.data, 
+               df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
                df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), yr=1986,
                method="SANN", 
-               control=list(trace=10, ndeps=.0001, maxit=10,
+               control=list(trace=10, ndeps=.1, maxit=10,
                             abstol=.005, reltol=.001, REPORT=100,
-                            temp=10, tmax=10))
+                            temp=.9, tmax=10))
+
+
+##3.  SIMULATED ANNEALING ALGORITHM
+test3 <- simulated_annealing(s0=rep(0.5, 6), func=fit.data, 
+                           args=list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+                                     df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), yr=1986),
+                           niter = 100, step = 0.001)
 
 ##for SANN method, temperature = temp / log(((t-1) %/% tmax)*tmax + exp(1))
 temp <- 1; tmax <- 1
@@ -79,6 +97,8 @@ for(t in 1:10) {
   print(T)
 }
 
+
+#######################################################################################
 output <- data.frame(yr=2010:2015, SS=NA, iters=NA)
 output$par <- list(c(0.5, 0.5, 0.5, 0.5, 0.5, 0.5))
 for(yr in 2010:2015){

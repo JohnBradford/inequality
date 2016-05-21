@@ -75,17 +75,19 @@ fit.data <- function(values, df.y, y.varNames=c("xgroup", "ygroup", "fit"),
     summarise(n=n(),
               meanW=mean(wealth, na.rm=T),
               medW=median(wealth, na.rm=T)) %>% 
-    mutate(wts = n / sum(n)) %>% 
+    mutate(wts = n / sum(n, na.rm=T)) %>% 
     complete(xgroup)
   
-  dfs.x[is.na(dfs.x)] <- 0
+  dfs.x$meanW[is.na(dfs.x$meanW)] <- 0
+  dfs.x$medW[is.na(dfs.x$medW)] <- 0
+  dfs.x$wts[is.na(dfs.x$wts)] <- 0
   
   #if empirical population weights already provided, replace estimated with actual wts
   if(!is.null(df.x$wts)) {dfs.x$wts <- df.x$wts}
   
   dfs.x$realMedian[which(dfs.x$xgroup==df.x$xgroup)] <- df.x$medW
   dfs.x$estMean <- (dfs.x$realMedian/dfs.x$medW)*dfs.x$meanW #conditional Mean estimate - education class
-  Umean <- sum(dfs.x$wts*dfs.x$estMean)  ##Unconditional Mean Estimate Equals $32052.13 for 1986
+  Umean <- sum(dfs.x$wts*dfs.x$estMean, na.rm=T)  ##Unconditional Mean Estimate Equals $32052.13 for 1986
   dfs$estWealth <- dfs$wealth*Umean
   #xx <- x
   dfs <- subset(dfs, estWealth > 0 & estWealth < 100001) 
@@ -102,7 +104,7 @@ fit.data <- function(values, df.y, y.varNames=c("xgroup", "ygroup", "fit"),
     mutate(predict = n / sum(n, na.rm=T)) %>% 
     complete(ygroup)
   
-  dfs.xy[is.na(dfs.xy)] <- 0
+  dfs.xy$predict[is.na(dfs.xy$predict)] <- 0
   
   dfJoined <- left_join(df.y, dfs.xy, by=c("xgroup", "ygroup"))
   dfJoined$wts <- 0
@@ -110,7 +112,9 @@ fit.data <- function(values, df.y, y.varNames=c("xgroup", "ygroup", "fit"),
   dfJoined$wts[which(dfJoined$xgroup==levels(dfJoined$xgroup)[i])] <- dfs.x$wts[which(dfs.x$xgroup==levels(dfs.x$xgroup)[i])]
   }
   
-  dfJoined[is.na(dfJoined)] <- 0
+  dfJoined$fit[is.na(dfJoined$fit)] <- 0
+  dfJoined$predict[is.na(dfJoined$predict)] <- 0
+  dfJoined$wts[is.na(dfJoined$wts)] <- 0
   
   SSw <- sum( ((dfJoined$fit-dfJoined$predict)^2)*dfJoined$wts, na.rm=T)
 
