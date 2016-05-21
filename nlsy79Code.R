@@ -1,5 +1,6 @@
 ##This file generates the data file, "nlsy.csv" used in analyses
-
+olddir <- getwd()
+setwd("dataFiles")
 library(tidyr)
 library(dplyr)
 
@@ -410,5 +411,5 @@ for(i in 1:c){
   nl <- nl %>%
     group_by(ID) %>%
     mutate(dWealth = lead(deMeanedWage - lag(deMeanedWage)))
-             
+  setwd(olddir)           
   write.csv(nl, file="nlsy.csv")

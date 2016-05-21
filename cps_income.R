@@ -1,4 +1,6 @@
 ##THIS FILE USED TO CREATE THE "cps.csv" data file.
+olddir <- getwd()
+setwd("dataFiles")
 cps <- read.csv("cpsData.csv", na.strings=c(999, 9999999, 99999999, 9999998, 99999998, 99999, 99997, "", "NA"))
 library(Hmisc)
 library(dplyr)
@@ -128,5 +130,5 @@ cps$deMeanedWage <- cps$wage09/cps$uMean09
 
 #reduced
 cps <- cps[,c(1,7:12,30:36)]
-
+setwd(olddir)
 write.csv(cps, file="cps.csv")
