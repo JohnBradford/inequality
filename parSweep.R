@@ -29,7 +29,7 @@ for(k in vec_order){ #for each vector item k, ....
     #best_vk <- v[k]
     bestLocalfits[k] <- fresults[[2]][k]  ##least sum of squared residuals obtained for omega[k]
     STEP <- step * 10   #broader inquiry first
-    beginSweep <- v[k]
+    beginSweep <- v0[k]
     endSweep <- STEP
     if(!is.null(wtsVar)){ #ensuring when sweeping down, v[k+1] do not reduce below zero
       endSweep <- (length(v) - v[k]) * STEP  
