@@ -14,7 +14,7 @@ source(file="IP.R")
 ##fit has length equal to levels(x)*levels(y), where levels(y) are the income bins
 fit.data <- function(values, df.y, y.varNames=c("xgroup", "ygroup", "fit"),
                      df.x, x.varNames=c("xgroup", "Freq", "medW"), 
-                     yr=NULL, setSeed=FALSE) {
+                     yr=NULL, setSeed=FALSE, multiple=TRUE) {
 
   if(!is.data.frame(df.y)){
     message("df.y MUST BE A DATAFRAME CONTINGENCY TABLE containing three variables in the following order: \n
@@ -110,16 +110,27 @@ fit.data <- function(values, df.y, y.varNames=c("xgroup", "ygroup", "fit"),
   dfJoined$wts <- 0
   for(i in seq_along(levels(dfJoined$xgroup))){
   dfJoined$wts[which(dfJoined$xgroup==levels(dfJoined$xgroup)[i])] <- dfs.x$wts[which(dfs.x$xgroup==levels(dfs.x$xgroup)[i])]
+  
+  
   }
   
   dfJoined$fit[is.na(dfJoined$fit)] <- 0
   dfJoined$predict[is.na(dfJoined$predict)] <- 0
   dfJoined$wts[is.na(dfJoined$wts)] <- 0
   
-  SSw <- sum( ((dfJoined$fit-dfJoined$predict)^2)*dfJoined$wts, na.rm=T)
+  Total_sq_res <- sum( ((dfJoined$fit-dfJoined$predict)^2)*dfJoined$wts, na.rm=T)
+  
+  sqrs <- as.numeric()
+  if(multiple==TRUE){ #vector of squared residuals for each xgroup
+    for(i in seq_along(levels(dfJoined$xgroup))){
+      dfJ <- dfJoined[which(dfJoined$xgroup==levels(dfJoined$xgroup)[i]),]
+      group_sqrs <- sum( ((dfJ$fit-dfJ$predict)^2)*dfJ$wts, na.rm=T)
+      sqrs[i] <- group_sqrs
+    }
+    }
 
   if (exists("numCalls")) {
     numCalls <<- numCalls + 1
   }
-  return(SSw)
+  if(multiple==TRUE){return(list(Total_sq_res, sqrs))} else {return(Total_sq_res)}
 }

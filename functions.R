@@ -7,12 +7,12 @@
 library(dplyr)
 library(tidyr)
 library(GenSA)
-#library(lazyeval)
-
 source(file="IP.R")
 source(file="cpsLoad.R")
 source("dataFit.R")
 source("sim_anneal.R")
+source("anneal.R")
+
 ##Possible X's (conditioning variables):
 ##x=c("educ6", "educ4", "sex", "race", "race2", "hispan"),
 ##y=c("wage5", "wage10"),
@@ -40,12 +40,35 @@ fit.data(values, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
                     yr=1964, setSeed=FALSE)
 best1986 <- c(.4733, .4261, .3674, .3162, .2528, .1940)
 values <- best1986
-fit.data(values, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+
+best1986 <- c(.4733, .4261, .3674, .3162, .2528, .1940)  #overall = .0037
+v0 <- c(.5, .45, .40, .35, .30, .25) #overall = .0032
+bestEx1 <- c(0.5, 0.45, 0.36, 0.32, 0.28, 0.25) #experimental results
+fit.data(values=best1986, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
          df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
          yr=1986, setSeed=FALSE)
 
-s_n <- runif(6, max=1, min=0)
-fit.data(values=s_n, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+fit.data(values=v0, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+         df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
+         yr=1986, setSeed=FALSE)
+
+fit.data(values=bestEx1, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+         df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
+         yr=1986, setSeed=FALSE)
+
+#######################################################
+##TEST WITH anneal.r algorithm
+results <- fitData.anneal()
+output <- results[[1]]
+results[2]
+results[3]
+results[4]
+
+fit.data(values=results$Global_par, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+         df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
+         yr=1986, setSeed=FALSE)
+
+fit.data(values=results$Local, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
          df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
          yr=1986, setSeed=FALSE)
 
