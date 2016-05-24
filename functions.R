@@ -44,17 +44,18 @@ values <- best1986
 best1986 <- c(.4733, .4261, .3674, .3162, .2528, .1940)  #overall = .0037
 v0 <- c(.5, .45, .40, .35, .30, .25) #overall = .0032
 bestEx1 <- c(0.5, 0.45, 0.36, 0.32, 0.28, 0.25) #experimental results
-fit.data(values=best1986, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
-         df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
-         yr=1986, setSeed=FALSE)
+bestEx2 <- c(0.50, 0.45, 0.38, 0.35, 0.29, 0.25)
 
-fit.data(values=v0, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
-         df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
-         yr=1986, setSeed=FALSE)
+pars <- list(best1986, bestEx1, bestEx2)
+args <- list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+              df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
+              yr=1986, setSeed=FALSE)
+output <- list()
+for(i in 1:length(pars)){
+r <- do.call(fit.data, args=c(list(values=pars[[i]]), args))
+output[[i]] <- r
+}
 
-fit.data(values=bestEx1, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
-         df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
-         yr=1986, setSeed=FALSE)
 
 #######################################################
 ##TEST WITH anneal.r algorithm
