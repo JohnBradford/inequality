@@ -95,7 +95,9 @@ for(k in vec_order){ #for each vector item k, ....
     args_n <- c(list(values=v), args)
     t <- t + 1
   } 
-  v[k] <- bestGlobalpar[k]
+  v <- bestGlobalpar
+  ##Also, have option to reset according to local minima
+  # for(j in 1:length(v)){v[j] <- bestLocalfits[j]}
   args_n <- c(list(values=v), args)
   t <- t + 1
 }
