@@ -1,9 +1,10 @@
-fitData.anneal <- function(v0=c(.5, .45, .40, .35, .30, .25), step=.01, verbose=TRUE, yrs=1986,
-                   args=list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+fitData.anneal <- function(v0=c(.6, .6, .6, .6, .6, .6), step=.01, verbose=TRUE, yrs=1986, 
+                           wtsVar=NULL, 
+                           args=list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
                           df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), yr=yrs)) {
 ##### START HERE ############
 source("dataFit.R")
-v <- v0
+v <- v0  # omega parameter values; percentage lost by loser in interaction
 args_n <- c(list(values=v0), args)
 fresults <- do.call(fit.data, args_n)
 bestGlobal <- as.numeric(fresults[1])
@@ -14,14 +15,20 @@ output$par <- list(v0)
 output$bestGlobalpar <- list(v0)
 output$bestLocalpar <- list(v0)
 
+##sweep number 1
 t <- 1
-for(k in length(v):1){
+order_small <- length(v):1
+order_big <- 1:length(v)
+if(!is.null(wtsVar)){
+  order_wts <- order(wtsVar, decreasing=TRUE)}   #if no other info is provided
+else {order_wts <- order_small} #vary group with largest weight first
+for(k in order_wts){
   best_vk <- v[k]
   bestLocal <- fresults[[2]][k]
   ##reduce last (smallest) omega all the way, then pick best, then do second to last, etc..
   #vKmax <- max(v[k+1], 0.01, na.rm=T)
   #if(v[k]<=vKmax){v[k]<-v[k]+.1} #in case beginning and end of sequence below are the same
-  for(newValue in seq(v[k], .01, by=-step)){ ##countdown of values, decreasing from max, in column k (6 --> 1)
+  for(newValue in seq(v[k], step, by=-step)){ ##countdown of values, decreasing from max, in column k (6 --> 1)
     
         results <- do.call(fit.data, args_n)#############
 

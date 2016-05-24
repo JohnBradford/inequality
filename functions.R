@@ -45,25 +45,31 @@ best1986 <- c(.4733, .4261, .3674, .3162, .2528, .1940)  #overall = .0037
 v0 <- c(.5, .45, .40, .35, .30, .25) #overall = .0032
 bestEx1 <- c(0.5, 0.45, 0.36, 0.32, 0.28, 0.25) #experimental results
 bestEx2 <- c(0.50, 0.45, 0.38, 0.35, 0.29, 0.25)
+bestEx3 <- c(0.50, 0.45, 0.36, 0.35, 0.28, 0.25)
+c(0.6, 0.58, 0.45, 0.42, 0.4, 0.36)
+c(0.6, 0.58, 0.45, 0.42, 0.4, 0.359)
+bestEx4 <- c(0.6, 0.58, 0.45, 0.42, 0.4, 0.327)
 
-pars <- list(best1986, bestEx1, bestEx2)
+pars <- list(best1986, bestEx1, bestEx2, bestEx3, bestEx4)
 args <- list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
               df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
               yr=1986, setSeed=FALSE)
-output <- list()
+bestPars <- list()
 for(i in 1:length(pars)){
 r <- do.call(fit.data, args=c(list(values=pars[[i]]), args))
-output[[i]] <- r
+bestPars[[i]] <- r
 }
 
-
+do.call(fit.data, args=c(list(values=bestEx4), args))
 #######################################################
-##TEST WITH anneal.r algorithm
-results <- fitData.anneal()
+##TEST WITH fitData.sweep algorithm
+resultsWts <- fitData.sweep(wtsVar=cps.x$wts[which(cps.x$year==1986)])
+
+results <- fitData.sweep()
 output <- results[[1]]
 results[2]
 results[3]
-results[4]
+results[[4]]
 
 fit.data(values=results$Global_par, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
          df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
