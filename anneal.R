@@ -6,7 +6,7 @@ source("dataFit.R")
 v <- v0
 args_n <- c(list(values=v0), args)
 fresults <- do.call(fit.data, args_n)
-bestGlobal <- as.numeric(results[1])
+bestGlobal <- as.numeric(fresults[1])
 bestGlobalpar <- v
 bestLocalpar <- v
 output <- data.frame(sumSq=rep(NA, 1000), bestGlobal=bestGlobal)
@@ -19,9 +19,9 @@ for(k in length(v):1){
   best_vk <- v[k]
   bestLocal <- fresults[[2]][k]
   ##reduce last (smallest) omega all the way, then pick best, then do second to last, etc..
-  vKmax <- max(v[k+1], 0.01, na.rm=T)
-  if(v[k]<=vKmax){v[k]<-v[k]+.1} #in case beginning and end of sequence below are the same
-  for(newValue in seq(v[k], vKmax, by=-step)){ ##countdown of values, decreasing from max, in column k (6 --> 1)
+  #vKmax <- max(v[k+1], 0.01, na.rm=T)
+  #if(v[k]<=vKmax){v[k]<-v[k]+.1} #in case beginning and end of sequence below are the same
+  for(newValue in seq(v[k], .01, by=-step)){ ##countdown of values, decreasing from max, in column k (6 --> 1)
     
         results <- do.call(fit.data, args_n)#############
 
