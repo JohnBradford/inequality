@@ -60,7 +60,7 @@ for(k in vec_order){ #for each vector item k, ....
   #if(v[k]<=vKmax){v[k]<-v[k]+.1} #in case beginning and end of sequence below are the same
   
   #SECONDARY LOOP - FITTING EACH INDEX
-  if(verbose==TRUE){message(paste("endSweep=", endSweep, sep=""))}
+  if(verbose==TRUE){message(paste("beginSweep=", beginSweep, ". endSweep=", endSweep, sep=""))}
   for(newValue in seq(beginSweep, endSweep, by=-STEP)){ ##countdown of values, decreasing from max, in column k (6 --> 1)
     #message(paste("beginSweep=", beginSweep, " . endSweep =", endSweep))
 
