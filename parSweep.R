@@ -76,10 +76,10 @@ for(k in vec_order){ #for each vector item k, ....
     meanLocalSumSqrs <- as.numeric()
         for(i in 1:length(v)){
           total <- 0
-          for(f in 1:fits){
+          for(f in 1:numFits){
             total <- total + q[[2,f]][i]
           }
-          kMean <- total/fits
+          kMean <- total/numFits
           meanLocalSumSqrs[i] <- kMean
         }
         
