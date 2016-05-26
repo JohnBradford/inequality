@@ -1,5 +1,5 @@
-fitData.sweep <- function(v0=c(.6, .6, .6, .6, .6, .6), step=.01, verbose=TRUE, yrs=1986, 
-                           wtsVar=NULL, fits=10, takeMean=FALSE,
+fitData.sweep <- function(v0=c(.7, .7, .7, .7, .7, .7), step=.001, verbose=TRUE, yrs=1986, 
+                           wtsVar=NULL, fits=5, takeMean=FALSE,
                            args=list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
                           df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), yr=yrs)) {
 ##### START HERE ############
@@ -34,25 +34,26 @@ for(l in 1:2) {
 for(k in vec_order){ #for each vector item k, ....
   if(verbose==TRUE){message(paste("fitting index ", k, sep=""))}
   if(sweep==1){
+    numFits <- 2
     #best_vk <- v[k]
     bestLocalfits[k] <- fresults[[2]][k]  ##least sum of squared residuals obtained for omega[k]
     STEP <- step * 10   #broader inquiry first
     beginSweep <- v0[k]
-    endSweep <- STEP
+    endSweep <- 0
     #message(paste("endSweep=", endSweep, sep=""))
-    if(!is.null(wtsVar)){ #ensuring when sweeping down, v[k+1] do not reduce below zero
-      endSweep <- (length(v) - k) * STEP  
-      #message(paste("endSweep=", endSweep, sep=""))
+   # if(!is.null(wtsVar)){endSweep <- (length(v) - k) * STEP }
+    #ensuring when sweeping down, v[k+1] do not reduce below zero  
+    #message(paste("endSweep=", endSweep, sep=""))
       #e.g., if v[3] has largest weight, it can only be reduced to
       #(6-3)*.1, or .3, because at that point, v[6] would already be at zero
-    }
   } else {
+    numFits <- fits
    # best_vk <- bestGlobalpar[k]
     STEP <- step
     #bestLocal <- bestLocalfits[k]  
     beginSweep <- bestGlobalpar[k] + STEP*10
     endSweep  <- max(bestGlobalpar[k] - STEP*10, 0)
-    if(!is.null(wtsVar)){endSweep <- (length(v) - k) * STEP}
+    #if(!is.null(wtsVar)){endSweep <- (length(v) - k) * STEP*10}
   }
   if(beginSweep<=endSweep){beginSweep <- beginSweep + (endSweep - beginSweep) + step * 10}
   ##reduce last (smallest) omega all the way, then pick best, then do second to last, etc..
@@ -64,7 +65,7 @@ for(k in vec_order){ #for each vector item k, ....
   for(newValue in seq(beginSweep, endSweep, by=-STEP)){ ##countdown of values, decreasing from max, in column k (6 --> 1)
     #message(paste("beginSweep=", beginSweep, " . endSweep =", endSweep))
 
-    q <- replicate(fits, do.call(fit.data, args_n))
+    q <- replicate(numFits, do.call(fit.data, args_n))
     output$sumSq[t] <- mean(as.numeric(q[1,]))
     output$par[t] <- list(v)
     #row1 = global sum of squared residuals, cols = for each iteration
@@ -120,6 +121,7 @@ for(k in vec_order){ #for each vector item k, ....
     for(m in k:length(v)) { #when using wts, ensure constraint of order is met, k1 > k2 > k3 ...
       if(m+1 <= length(v) & v[m]<=v[m+1]){
         v[m+1] <- v[m]-STEP
+        if(v[m+1] < 0){v[m+1] <- 0} ##setting to zero
       }
     }
     
