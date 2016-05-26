@@ -52,7 +52,7 @@ for(k in vec_order){ #for each vector item k, ....
     #bestLocal <- bestLocalfits[k]  
     beginSweep <- bestGlobalpar[k] + STEP*10
     endSweep  <- max(bestGlobalpar[k] - STEP*10, 0)
-    if(!is.null(wtsVar)){endSweep <- (length(v) - v[k]) * STEP}
+    if(!is.null(wtsVar)){endSweep <- (length(v) - k) * STEP}
   }
   if(beginSweep<=endSweep){beginSweep <- beginSweep + (endSweep - beginSweep) + step * 10}
   ##reduce last (smallest) omega all the way, then pick best, then do second to last, etc..
