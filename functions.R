@@ -43,50 +43,59 @@ values <- best1986
 
 best1986 <- c(.4733, .4261, .3674, .3162, .2528, .1940)  #overall = .0037
 v0 <- c(.5, .45, .40, .35, .30, .25) #overall = .0032
+ExpWts1 <- c(0.500, 0.440, 0.348, 0.310, 0.258, 0.240)  #0.001760348
 bestEx1 <- c(0.5, 0.45, 0.36, 0.32, 0.28, 0.25) #experimental results
 bestEx2 <- c(0.50, 0.45, 0.38, 0.35, 0.29, 0.25)
 bestEx3 <- c(0.50, 0.45, 0.36, 0.35, 0.28, 0.25)
-c(0.6, 0.58, 0.45, 0.42, 0.4, 0.36)
-c(0.6, 0.58, 0.45, 0.42, 0.4, 0.359)
-bestEx4 <- c(0.6, 0.58, 0.45, 0.42, 0.4, 0.327)
 
 
+pars <- list(best1986, ExpWts1, bestEx1, bestEx2, bestEx3)
+args <- list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+              df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
+              yr=1986, setSeed=FALSE)
+bestPars <- list()
+for(i in 1:length(pars)){
+r <- do.call(fit.data, args=c(list(values=pars[[i]]), args))
+bestPars[[i]] <- r
+}
+
+do.call(fit.data, args=c(list(values=bestEx4), args))
 #######################################################
 ##TEST WITH fitData.sweep algorithm
-resultsWts <- fitData.sweep(wtsVar=cps.x$wts[which(cps.x$year==1986)])
+resultsWts <- fitData.sweep(wtsVar=cps.x$wts[which(cps.x$year==1986)], fits=3)
+
+results <- fitData.sweep(fits=3)
+
+
+
+output <- results[[1]]
+results[2]  ##0.009147837
+results[3]
+results[4]
+results[5]
+
 outputWts <- resultsWts[[1]]
-resultsWts[2]
-resultsWts[3]
+resultsWts[2]   ##0.001760348
+resultsWts[3]   ## 0.500 0.440 0.348 0.310 0.258 0.240 , EXPWTS1
 resultsWts[4]
 resultsWts[5]
 
 
-pars <- list(resultsWts[[3]], resultsWts[[4]], best1986, bestEx1, bestEx2, bestEx3, bestEx4)
-args <- list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
-             df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
-             yr=1986, setSeed=FALSE)
-bestPars <- list()
-for(i in 1:length(pars)){
-  r <- do.call(fit.data, args=c(list(values=pars[[i]]), args))
-  bestPars[[i]] <- r
-}
 
-bestPars
+fit.data(values=resultsWts$Global_par, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+         df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
+         yr=1986, setSeed=FALSE)
 
+fit.data(values=resultsWts$Localpar, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+         df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
+         yr=1986, setSeed=FALSE)
 
-
-
-results <- fitData.sweep()
-output <- results[[1]]
-results[2]
-results[3]
-results[[4]]
 
 fit.data(values=results$Global_par, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
          df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
          yr=1986, setSeed=FALSE)
 
-fit.data(values=results$Local, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+fit.data(values=results$Localpar, df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
          df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
          yr=1986, setSeed=FALSE)
 
