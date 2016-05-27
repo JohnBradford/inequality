@@ -43,21 +43,26 @@ values <- best1986
 
 best1986 <- c(.4733, .4261, .3674, .3162, .2528, .1940)  #overall = .0037
 v0 <- c(.5, .45, .40, .35, .30, .25) #overall = .0032
-ExpWts1 <- c(0.500, 0.440, 0.348, 0.310, 0.258, 0.240)  #0.001760348
 bestEx1 <- c(0.5, 0.45, 0.36, 0.32, 0.28, 0.25) #experimental results
 bestEx2 <- c(0.50, 0.45, 0.38, 0.35, 0.29, 0.25)
 bestEx3 <- c(0.50, 0.45, 0.36, 0.35, 0.28, 0.25)
+ExpWts1 <- c(0.500, 0.440, 0.348, 0.310, 0.258, 0.240)  #0.001760348
+LocalEx <- c(0.6, 0.53, 0.443, 0.371, 0.354, 0.35)
+LocalExWts <- c(0.5, 0.44, 0.33, 0.31, 0.258, 0.24)
 
 
-pars <- list(best1986, ExpWts1, bestEx1, bestEx2, bestEx3)
+pars <- list(best1986, bestEx1, bestEx2, bestEx3, ExpWts1, LocalEx, LocalExWts)
 args <- list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
               df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
               yr=1986, setSeed=FALSE)
 bestPars <- list()
+parsdf <- data.frame(index=1:100, Angle1986=NA, Ex1=NA, Ex2=NA, Ex3=NA, ExpWts=NA, LocalEx=NA, LocalExWts=NA)
+for(t in 1:100){
 for(i in 1:length(pars)){
-r <- do.call(fit.data, args=c(list(values=pars[[i]]), args))
-bestPars[[i]] <- r
-}
+r <- as.numeric(do.call(fit.data, args=c(list(values=pars[[i]]), args))[[1]][1])
+parsdf[t, i+1] <- r
+}}
+summary(parsdf)
 
 do.call(fit.data, args=c(list(values=bestEx4), args))
 #######################################################

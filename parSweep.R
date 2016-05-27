@@ -1,4 +1,4 @@
-fitData.sweep <- function(v0=c(.7, .7, .7, .7, .7, .7), step=.001, verbose=TRUE, yrs=1986, 
+fitData.sweep <- function(v0=c(.6, .55, .5, .45, .4, .35), step=.001, verbose=TRUE, yrs=1986, 
                            wtsVar=NULL, fits=5, takeMean=FALSE,
                            args=list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
                           df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), yr=yrs)) {
@@ -34,7 +34,7 @@ for(l in 1:2) {
 for(k in vec_order){ #for each vector item k, ....
   if(verbose==TRUE){message(paste("fitting index ", k, sep=""))}
   if(sweep==1){
-    numFits <- 2
+    numFits <- fits
     #best_vk <- v[k]
     bestLocalfits[k] <- fresults[[2]][k]  ##least sum of squared residuals obtained for omega[k]
     STEP <- step * 10   #broader inquiry first
