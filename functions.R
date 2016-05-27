@@ -50,20 +50,31 @@ c(0.6, 0.58, 0.45, 0.42, 0.4, 0.36)
 c(0.6, 0.58, 0.45, 0.42, 0.4, 0.359)
 bestEx4 <- c(0.6, 0.58, 0.45, 0.42, 0.4, 0.327)
 
-pars <- list(best1986, bestEx1, bestEx2, bestEx3, bestEx4)
-args <- list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
-              df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
-              yr=1986, setSeed=FALSE)
-bestPars <- list()
-for(i in 1:length(pars)){
-r <- do.call(fit.data, args=c(list(values=pars[[i]]), args))
-bestPars[[i]] <- r
-}
 
-do.call(fit.data, args=c(list(values=bestEx4), args))
 #######################################################
 ##TEST WITH fitData.sweep algorithm
 resultsWts <- fitData.sweep(wtsVar=cps.x$wts[which(cps.x$year==1986)])
+outputWts <- resultsWts[[1]]
+resultsWts[2]
+resultsWts[3]
+resultsWts[4]
+resultsWts[5]
+
+
+pars <- list(resultsWts[[3]], resultsWts[[4]], best1986, bestEx1, bestEx2, bestEx3, bestEx4)
+args <- list(df.y=cps.x.y, y.varNames=c("x", "y", "fit"),
+             df.x=cps.x, x.varNames=c("x", "pFreq.x", "medW.x"), 
+             yr=1986, setSeed=FALSE)
+bestPars <- list()
+for(i in 1:length(pars)){
+  r <- do.call(fit.data, args=c(list(values=pars[[i]]), args))
+  bestPars[[i]] <- r
+}
+
+bestPars
+
+
+
 
 results <- fitData.sweep()
 output <- results[[1]]
